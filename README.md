@@ -24,8 +24,12 @@ Or install it yourself as:
 ## Usage
 
 ### Step 1.  Write a config class
+Note this sample uses the `Singleton` pattern, which is useful but not required.
 
 ```ruby    
+    require 'singleton'
+    require 'dry/config'
+    
     class AcmeConfig < Dry::Config::Base
         
         # (optional) make this the only instance 
