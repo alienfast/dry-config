@@ -24,7 +24,8 @@ Or install it yourself as:
 
 ### Step 1.  Write a config class
 
-    ```ruby    
+    ```ruby   
+     
     class AcmeConfig < Dry::Config::Base
         
         # (optional) make this the only instance 
@@ -43,6 +44,7 @@ Or install it yourself as:
           }
         end
     end
+    
     ```
     
 ### Step 2.  Write a yml config file
