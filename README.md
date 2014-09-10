@@ -1,6 +1,10 @@
 # Dry::Config
 
-TODO: Write a gem description
+Simple base class for DRY environment based configurations that can be loaded from multiple overriding yml files.  
+A programmatic seed configuration may be specified, as well as the ability to load multiple overriding configuration files 
+(think multi-environment and a white label multi-domain configuration).
+ 
+The [elastic-beanstalk gem](https://github.com/alienfast/elastic-beanstalk) is a real world example that utilized `Dry::Config::Base`.
 
 ## Installation
 
@@ -18,8 +22,81 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Step 1.  Write a config class
 
+    ```ruby    
+    class AcmeConfig < Dry::Config::Base
+        
+        # (optional) make this the only instance 
+        include Singleton
+        
+        # seed the sensible defaults here
+        def seed_default_configuration
+          
+          @configuration = {
+              environment: nil,
+              strategy: :blue_green,
+              package: {
+                  verbose: false
+              },
+              options: {}
+          }
+        end
+    end
+    ```
+    
+### Step 2.  Write a yml config file
+    
+    ```yaml
+    # sample config demonstrating multi-environment override
+    ---
+    app: acme
+    title: Acme Holdings, LLC
+    #---
+    options:
+      aws:elasticbeanstalk:application:environment:
+        RAILS_ENV: foobar
+    
+      aws:autoscaling:launchconfiguration:
+        InstanceType: foo
+    
+    #---
+    development:
+      strategy: inplace-update
+      package:
+        verbose: true
+      options:
+        aws:autoscaling:launchconfiguration:
+          InstanceType: t1.micro
+        aws:elasticbeanstalk:application:environment:
+          RAILS_ENV: development
+    
+    #---
+    production:
+      options:
+        aws:autoscaling:launchconfiguration:
+          InstanceType: t1.large
+        aws:elasticbeanstalk:application:environment:
+          RAILS_ENV: production    
+    ```
+
+### Step 3. Load your config
+ Note that multiple files can be loaded and override.
+ 
+    ```ruby
+     AcmeConfig.instance.load!(:production, 'path_to/acme.yml')
+     ```
+### Step 4. Use the values
+ Note that all keys are symbolized upon loading.
+
+    ```ruby
+    config = Acme.config.instance
+    config.app          # acme
+    config.title        # Acme Holdings, LLC    
+    config.strategy     # :blue_green,
+    config.options[:'aws:autoscaling:launchconfiguration'][:InstanceType] # t1.large
+    ```   
+   
 ## Contributing
 
 1. Fork it

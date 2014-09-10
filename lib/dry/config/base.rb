@@ -33,7 +33,7 @@ module Dry
       # overrides in Rails
       def load!(environment, filename)
 
-        raise 'Unspecified environment' if environment.nil?
+        # raise 'Unspecified environment' if environment.nil?
         raise 'Unspecified filename' if filename.nil?
 
         # save these in case we #reload
@@ -41,11 +41,14 @@ module Dry
         @filename = filename
 
         # merge all top level settings with the defaults set in the #init
-        #@configuration.deep_merge!( YAML::load_file(filename).deep_symbolize )
+
         deep_merge!(@configuration, YAML::load_file(filename).deep_symbolize)
 
         # add the environment to the top level settings
         @configuration[:environment] = (environment.nil? ? nil : environment.to_s)
+
+        # TODO: the target file should be overlaid in an environment specific way in isolation, prior to merging with @configuration
+        # TODO: otherwise this will kill prior wanted settings when merging multiple files.
 
         # overlay the specific environment if provided
         if environment && @configuration[environment.to_sym]
@@ -81,16 +84,6 @@ module Dry
         @configuration[name.to_sym] ||
             #fail(NoMethodError, "Unknown settings root \'#{name}\'", caller)
             nil
-      end
-
-      def resolve_path(relative_path)
-        if defined?(Rails)
-          Rails.root.join(relative_path)
-        elsif defined?(Rake.original_dir)
-          File.expand_path(relative_path, Rake.original_dir)
-        else
-          File.expand_path(relative_path, Dir.pwd)
-        end
       end
 
       private
