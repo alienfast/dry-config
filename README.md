@@ -47,7 +47,7 @@ Or install it yourself as:
     
 ### Step 2.  Write a yml config file
     
-    ```yaml
+```yaml
     # sample config demonstrating multi-environment override
     ---
     app: acme
@@ -78,24 +78,25 @@ Or install it yourself as:
           InstanceType: t1.large
         aws:elasticbeanstalk:application:environment:
           RAILS_ENV: production    
-    ```
+```
 
 ### Step 3. Load your config
  Note that multiple files can be loaded and override.
  
-    ```ruby
+```ruby
      AcmeConfig.instance.load!(:production, 'path_to/acme.yml')
-     ```
+```
+
 ### Step 4. Use the values
  Note that all keys are symbolized upon loading.
 
-    ```ruby
+```ruby
     config = Acme.config.instance
     config.app          # acme
     config.title        # Acme Holdings, LLC    
     config.strategy     # :blue_green,
     config.options[:'aws:autoscaling:launchconfiguration'][:InstanceType] # t1.large
-    ```   
+```   
    
 ## Contributing
 
