@@ -93,6 +93,8 @@ Or install it yourself as:
 
 ```ruby
     config = Acme.config.instance
+    config.load!(:production, 'path_to/acme.yml')
+    
     config.app          # acme
     config.title        # Acme Holdings, LLC    
     config.strategy     # :blue_green,
