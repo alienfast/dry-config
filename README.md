@@ -101,6 +101,11 @@ Or install it yourself as:
     config.options[:'aws:autoscaling:launchconfiguration'][:InstanceType] # t1.large
 ```   
    
+## Other options
+- Expected environments are `[:development, :test, :staging, :production]`.  Expand or redefine `@potential_environments` these by overriding the `#initialize` or doing so in your optional `#seed_default_configuration`.  This is used in the used in the overlay pruning process to prevent unused branches of configuration from showing up in the resolved configuration.
+- An optional `#seed_default_configuration` allows you to provide a configuration base    
+- `#clear` will restore to the seed configuration, allowing you to `#load!` new settings.
+   
 ## Contributing
 
 1. Fork it
