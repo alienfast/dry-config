@@ -1,7 +1,8 @@
-require "dry/config/version"
+require 'dry/config/version'
 
 module Dry
   module Config
-    # Your code goes here...
+    require 'config/deep_symbolizable'
+    require 'config/base'
   end
 end
