@@ -1,6 +1,7 @@
-require 'spec/spec_helper'
+require 'spec_helper'
+require 'singleton'
 
-describe Base do
+describe Dry::Config::Base do
 
   class AcmeConfig < Dry::Config::Base
     include Singleton

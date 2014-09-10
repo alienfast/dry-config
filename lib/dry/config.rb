@@ -2,7 +2,7 @@ require 'dry/config/version'
 
 module Dry
   module Config
-    require 'config/deep_symbolizable'
-    require 'config/base'
+    require 'dry/config/deep_symbolizable'
+    require 'dry/config/base'
   end
 end
