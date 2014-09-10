@@ -1,6 +1,7 @@
 # Dry::Config
 
 Simple base class for DRY environment based configurations that can be loaded from multiple overriding yml files.  
+
 A programmatic seed configuration may be specified, as well as the ability to load multiple overriding configuration files 
 (think multi-environment and a white label multi-domain configuration).
  
@@ -81,7 +82,7 @@ Or install it yourself as:
 ```
 
 ### Step 3. Load your config
- Note that multiple files can be loaded and override.
+ Note that multiple files can be loaded and overriden.  A nil environment is also possible.
  
 ```ruby
      AcmeConfig.instance.load!(:production, 'path_to/acme.yml')
