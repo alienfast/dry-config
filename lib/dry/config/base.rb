@@ -31,49 +31,62 @@ module Dry
       # a name of the file to read as it's argument. We can also pass in some
       # options, but at the moment it's being used to allow per-environment
       # overrides in Rails
-      def load!(environment, filename)
+      def load!(environment, *filenames)
 
         # raise 'Unspecified environment' if environment.nil?
-        raise 'Unspecified filename' if filename.nil?
+        raise 'Unspecified filename' if filenames.nil?
+
+        # ensure symbol
+        if environment
+          environment = environment.to_sym unless environment.is_a? Symbol
+        end
 
         # save these in case we #reload
         @environment = environment
-        @filename = filename
+        @filenames = filenames
 
-        # merge all top level settings with the defaults set in the #init
-
-        deep_merge!(@configuration, YAML::load_file(filename).deep_symbolize)
+        filenames.each do |filename|
+          # merge all top level settings with the defaults set in the #init
+          deep_merge!(@configuration, resolve_config(environment, filename))
+        end
 
         # add the environment to the top level settings
         @configuration[:environment] = (environment.nil? ? nil : environment.to_s)
+      end
 
-        # TODO: the target file should be overlaid in an environment specific way in isolation, prior to merging with @configuration
-        # TODO: otherwise this will kill prior wanted settings when merging multiple files.
+      def resolve_config(environment, filename)
+
+        config = load_yaml_file(filename)
+
+        should_overlay_environment = environment && config[environment]
+
+        # Prune all known environments so that we end up with the top-level configuration.
+        @potential_environments.each do |env|
+          config.delete(env)
+        end
 
         # overlay the specific environment if provided
-        if environment && @configuration[environment.to_sym]
-
-          # this is environment specific, so prune any environment
-          # based settings from the initial set so that they can be overlaid.
-          @potential_environments.each do |env|
-            @configuration.delete(env)
-          end
-
+        if should_overlay_environment
           # re-read the file
-          environment_settings = YAML::load_file(filename).deep_symbolize
+          environment_settings = load_yaml_file(filename)
 
           # snag the requested environment
           environment_settings = environment_settings[environment.to_sym]
 
-          # finally overlay what was provided
-          #@configuration.deep_merge!(environment_settings)
-          deep_merge!(@configuration, environment_settings)
+          # finally overlay what was provided the settings from the specific environment
+          deep_merge!(config, environment_settings)
         end
+
+        config
+      end
+
+      def load_yaml_file(filename)
+        YAML::load_file(filename).deep_symbolize
       end
 
       def reload!
         clear
-        load! @environment, @filename
+        load! @environment, @filenames
       end
 
       def clear
@@ -88,7 +101,11 @@ module Dry
 
       private
 
-      def deep_merge!(target, data)
+      def deep_merge!(target, overrides)
+
+        raise 'target cannot be nil' if target.nil?
+        raise 'overrides cannot be nil' if overrides.nil?
+
         merger = proc { |key, v1, v2|
           if (Hash === v1 && Hash === v2)
             v1.merge(v2, &merger)
@@ -98,7 +115,7 @@ module Dry
             v2
           end
         }
-        target.merge! data, &merger
+        target.merge! overrides, &merger
       end
     end
   end

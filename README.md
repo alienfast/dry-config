@@ -1,9 +1,10 @@
 # Dry::Config
 
-Simple base class for DRY environment based configurations that can be loaded from multiple overriding yml files.  
+Simple base class for DRY configurations configurations that can be loaded from multiple overriding yml files.
+  
+Sample uses include environment based e.g. `development, test, production` and multi-domain white label configurations.  
 
-A programmatic seed configuration may be specified, as well as the ability to load multiple overriding configuration files 
-(think multi-environment and a white label multi-domain configuration).
+A programmatic seed configuration may be specified, as well as the ability to load one to many overriding configuration files.
  
 The [elastic-beanstalk gem](https://github.com/alienfast/elastic-beanstalk) is a real world example that utilized `Dry::Config::Base`.
 
@@ -109,6 +110,16 @@ Note this sample uses the `Singleton` pattern, which is useful but not required.
 - Expected environments are `[:development, :test, :staging, :production]`.  Expand or redefine `@potential_environments` these by overriding the `#initialize` or doing so in your optional `#seed_default_configuration`.  This is used in the used in the overlay pruning process to prevent unused branches of configuration from showing up in the resolved configuration.
 - An optional `#seed_default_configuration` allows you to provide a configuration base    
 - `#clear` will restore to the seed configuration, allowing you to `#load!` new settings.
+
+## White Label sample
+
+```ruby
+    class WhiteLabelConfig < Dry::Config::Base
+    end
+
+    config = WhiteLabelConfig.new
+    config.load!(nil, 'base.yml', 'acme.com.yml', 'scheduling.acme.com.yml')
+```    
    
 ## Contributing
 
