@@ -14,6 +14,8 @@ module Dry
 #
     class Base
       attr_reader :configuration
+      attr_reader :environment
+      attr_reader :filenames
 
       def initialize
         seed_default_configuration
@@ -49,9 +51,6 @@ module Dry
           # merge all top level settings with the defaults set in the #init
           deep_merge!(@configuration, resolve_config(environment, filename))
         end
-
-        # add the environment to the top level settings
-        @configuration[:environment] = (environment.nil? ? nil : environment.to_s)
       end
 
       def resolve_config(environment, filename)
