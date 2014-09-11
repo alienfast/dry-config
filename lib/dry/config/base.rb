@@ -17,7 +17,7 @@ module Dry
       attr_reader :environment
       attr_reader :filenames
 
-      def initialize
+      def initialize(*args)
         seed_default_configuration
 
         # used for pruning initial base set.  See #load!

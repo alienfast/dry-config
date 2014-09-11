@@ -1,4 +1,4 @@
-# Dry::Config
+# dry-config
 
 Simple base class for DRY configurations configurations that can be loaded from multiple overriding yml files.
   
@@ -28,82 +28,82 @@ Or install it yourself as:
 Note this sample uses the `Singleton` pattern, which is useful but not required.
 
 ```ruby    
-    require 'singleton'
-    require 'dry/config'
+require 'singleton'
+require 'dry/config'
+
+class AcmeConfig < Dry::Config::Base
     
-    class AcmeConfig < Dry::Config::Base
-        
-        # (optional) make this the only instance 
-        include Singleton
-        
-        # seed the sensible defaults here
-        def seed_default_configuration
-          
-          @configuration = {
-              environment: nil,
-              strategy: :blue_green,
-              package: {
-                  verbose: false
-              },
-              options: {}
-          }
-        end
+    # (optional) make this the only instance 
+    include Singleton
+    
+    # seed the sensible defaults here
+    def seed_default_configuration
+      
+      @configuration = {
+          environment: nil,
+          strategy: :blue_green,
+          package: {
+              verbose: false
+          },
+          options: {}
+      }
     end
+end
 ```
     
 ### Step 2.  Write a yml config file
     
 ```yaml
-    # sample config demonstrating multi-environment override
-    ---
-    app: acme
-    title: Acme Holdings, LLC
-    #---
-    options:
-      aws:elasticbeanstalk:application:environment:
-        RAILS_ENV: foobar
-    
-      aws:autoscaling:launchconfiguration:
-        InstanceType: foo
-    
-    #---
-    development:
-      strategy: inplace-update
-      package:
-        verbose: true
-      options:
-        aws:autoscaling:launchconfiguration:
-          InstanceType: t1.micro
-        aws:elasticbeanstalk:application:environment:
-          RAILS_ENV: development
-    
-    #---
-    production:
-      options:
-        aws:autoscaling:launchconfiguration:
-          InstanceType: t1.large
-        aws:elasticbeanstalk:application:environment:
-          RAILS_ENV: production    
+# sample config demonstrating multi-environment override
+---
+app: acme
+title: Acme Holdings, LLC
+#---
+options:
+  aws:elasticbeanstalk:application:environment:
+    RAILS_ENV: foobar
+
+  aws:autoscaling:launchconfiguration:
+    InstanceType: foo
+
+#---
+development:
+  strategy: inplace-update
+  package:
+    verbose: true
+  options:
+    aws:autoscaling:launchconfiguration:
+      InstanceType: t1.micro
+    aws:elasticbeanstalk:application:environment:
+      RAILS_ENV: development
+
+#---
+production:
+  options:
+    aws:autoscaling:launchconfiguration:
+      InstanceType: t1.large
+    aws:elasticbeanstalk:application:environment:
+      RAILS_ENV: production    
 ```
 
 ### Step 3. Load your config
  Note that multiple files can be loaded and overriden.  A nil environment is also possible.
  
 ```ruby
-     AcmeConfig.instance.load!(:production, 'path_to/acme.yml')
+AcmeConfig.instance.load!(:production, 'path_to/acme.yml')
 ```
 
 ### Step 4. Use the values
  Note that all keys are symbolized upon loading.
 
 ```ruby
-    config = Acme.config.instance
-    config.load!(:production, 'path_to/acme.yml')
-    
-    config.app          # acme
-    config.title        # Acme Holdings, LLC    
-    config.strategy     # :blue_green,
-    config.options[:'aws:autoscaling:launchconfiguration'][:InstanceType] # t1.large
+config = Acme.config.instance
+config.load!(:production, 'path_to/acme.yml')
+
+config.app          # acme
+config.title        # Acme Holdings, LLC    
+config.strategy     # :blue_green,
+config.options[:'aws:autoscaling:launchconfiguration'][:InstanceType] # t1.large
 ```   
    
 ## Other options
