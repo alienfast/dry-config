@@ -80,7 +80,9 @@ module Dry
       end
 
       def load_yaml_file(filename)
-        YAML::load_file(filename).deep_symbolize
+        config = YAML::load_file(filename)
+        raise "Failed to load #{filename}" if config.nil?
+        config.deep_symbolize
       end
 
       def reload!
