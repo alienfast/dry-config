@@ -29,6 +29,7 @@ Or install it yourself as:
     $ gem install dry-config
 
 ## Usage
+The following example shows a single file where environments will override base level settings.  `dry-config` is useful for simple, to multi-file, multi-environmet settings.
 
 ### Step 1.  Write a config class
 Note this sample uses the `Singleton` pattern, which is useful but not required.
