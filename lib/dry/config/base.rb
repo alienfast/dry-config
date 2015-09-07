@@ -80,9 +80,15 @@ module Dry
       end
 
       def load_yaml_file(filename)
-        config = YAML::load_file(filename)
+        config = Psych.load_file(filename)
         raise "Failed to load #{filename}" if config.nil?
         config.deep_symbolize
+      end
+
+      def write_yaml_file(filename)
+        File.open(filename, 'w') do |file|
+          file.write(Psych.dump(@configuration))
+        end
       end
 
       def reload!
