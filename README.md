@@ -6,7 +6,7 @@ Sample uses include environment based e.g. `development, test, production` and m
 
 A programmatic seed configuration may be specified, as well as the ability to load one to many overriding configuration files.
 
-Results may be re-written to an output file, useful for compiling static fils for other processes such as `docker-compose.yml`.
+Results may be re-written to an output file, useful for compiling static files for other processes such as `docker-compose.yml`.
  
 The [elastic-beanstalk gem](https://github.com/alienfast/elastic-beanstalk) is a real world example that utilized `Dry::Config::Base`.
 
