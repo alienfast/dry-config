@@ -111,6 +111,22 @@ config.options[:'aws:autoscaling:launchconfiguration'][:InstanceType] # t1.large
 - An optional `#seed_default_configuration` allows you to provide a configuration base    
 - `#clear` will restore to the seed configuration, allowing you to `#load!` new settings.
 
+## ENV Interpolation/substitution/expansion
+
+ENV variable substitution is supported and enabled by default.  It may be disabled by initializing with `{interpolation: false}`. 
+
+The following formats are acceptable:
+
+```yaml
+interpolations:
+  - ~/foo
+  - $HOME/foo
+  - ${HOME}/foo
+  - #{HOME}/foo
+  # mixed example
+  - ~/docker/mysql/${PROJECT_NAME}-${BUILD}:/var/lib/mysql:rw
+```
+
 ## White Label sample
 
 ```ruby

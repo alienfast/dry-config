@@ -17,7 +17,9 @@ module Dry
       attr_reader :environment
       attr_reader :filenames
 
-      def initialize(*args)
+      def initialize(options = {})
+        @options = {interpolation: true}.merge options
+
         seed_default_configuration
 
         # used for pruning initial base set.  See #load!
@@ -80,7 +82,28 @@ module Dry
       end
 
       def load_yaml_file(filename)
-        config = Psych.load_file(filename)
+
+        # without interpolation
+        # config = Psych.load_file(filename)
+
+        # get file contents as string
+        file = File.open(filename, 'r:bom|utf-8')
+        contents = file.read
+
+        if @options[:interpolation]
+          # interpolate/substitute/expand ENV variables with the string contents before parsing
+          # bash - $VAR
+          contents = contents.gsub(/\$(\w+)/) { ENV[$1] }
+          # bash - ${VAR}
+          contents = contents.gsub(/\${(\w+)}/) { ENV[$1] }
+          # bash - ~ is ENV['HOME']
+          contents = contents.gsub(/(~)/) { ENV['HOME'] }
+          # ruby - #{VAR}
+          contents = contents.gsub(/\#{(\w+)}/) { ENV[$1] }
+        end
+        # now parse
+        config = Psych.load(contents, filename)
+
         raise "Failed to load #{filename}" if config.nil?
         config.deep_symbolize
       end

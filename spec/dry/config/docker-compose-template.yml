@@ -14,9 +14,14 @@ db:
   ports:
     - "3306:3306"
   volumes:
-    - ~/docker/mysql/${PROJECT_NAME}:/var/lib/mysql:rw
+    - ~/docker/mysql/${PROJECT_NAME}-${BUILD}:/var/lib/mysql:rw
     # interpolation coming in compose 1.5
     #   https://github.com/docker/compose/pull/1765
     #   https://github.com/docker/compose/issues/1377
   environment:
     - MYSQL_ALLOW_EMPTY_PASSWORD=true
+interpolations:
+  - ~/foo
+  - $HOME/foo
+  - ${HOME}/foo
+  - #{HOME}/foo
