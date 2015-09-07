@@ -28,7 +28,7 @@ Or install it yourself as:
 
     $ gem install dry-config
 
-## Usage
+## Example 1: environment inheritance
 The following example shows a single file where environments will override base level settings.  `dry-config` is useful for simple, to multi-file, multi-environmet settings.
 
 ### Step 1.  Write a config class
@@ -112,12 +112,15 @@ config.title        # Acme Holdings, LLC
 config.strategy     # :blue_green,
 config.options[:'aws:autoscaling:launchconfiguration'][:InstanceType] # t1.large
 ```   
-   
-## Other options
-- Expected environments are `[:development, :test, :staging, :production]`.  Expand or redefine `@potential_environments` these by overriding the `#initialize` or doing so in your optional `#seed_default_configuration`.  This is used in the used in the overlay pruning process to prevent unused branches of configuration from showing up in the resolved configuration.
-- An optional `#seed_default_configuration` allows you to provide a configuration base    
-- `#clear` will restore to the seed configuration, allowing you to `#load!` new settings.
+## Example 2: Multi-file White Label sample
 
+```ruby
+    class WhiteLabelConfig < Dry::Config::Base
+    end
+
+    config = WhiteLabelConfig.new
+    config.load!(nil, 'base.yml', 'acme.com.yml', 'scheduling.acme.com.yml')
+```       
 ## ENV Interpolation/substitution/expansion
 
 ENV variable substitution is supported and enabled by default.  It may be disabled by initializing with `{interpolation: false}`. 
@@ -133,17 +136,12 @@ interpolations:
   # mixed example
   - ~/docker/mysql/${PROJECT_NAME}-${BUILD}:/var/lib/mysql:rw
 ```
+      
+## Options
+- Expected environments are `[:development, :test, :staging, :production]`.  Expand or redefine `@potential_environments` these by overriding the `#initialize` or doing so in your optional `#seed_default_configuration`.  This is used in the used in the overlay pruning process to prevent unused branches of configuration from showing up in the resolved configuration.
+- An optional `#seed_default_configuration` allows you to provide a configuration base    
+- `#clear` will restore to the seed configuration, allowing you to `#load!` new settings.
 
-## White Label sample
-
-```ruby
-    class WhiteLabelConfig < Dry::Config::Base
-    end
-
-    config = WhiteLabelConfig.new
-    config.load!(nil, 'base.yml', 'acme.com.yml', 'scheduling.acme.com.yml')
-```    
-   
 ## Contributing
 
 1. Fork it
