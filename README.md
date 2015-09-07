@@ -1,10 +1,12 @@
 # dry-config
 
-Simple base class for DRY configurations configurations that can be loaded from multiple overriding yml files.
+Simple base class for DRY inheritable configurations that can be loaded from multiple overriding yml files.
   
 Sample uses include environment based e.g. `development, test, production` and multi-domain white label configurations.  
 
 A programmatic seed configuration may be specified, as well as the ability to load one to many overriding configuration files.
+
+Results may be re-written to an output file, useful for compiling static fils for other processes such as `docker-compose.yml`.
  
 The [elastic-beanstalk gem](https://github.com/alienfast/elastic-beanstalk) is a real world example that utilized `Dry::Config::Base`.
 
