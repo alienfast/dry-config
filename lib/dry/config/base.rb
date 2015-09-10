@@ -105,7 +105,7 @@ module Dry
         config = Psych.load(contents, filename)
 
         raise "Failed to load #{filename}" if config.nil?
-        config.deep_symbolize if @options[:symbolize]
+        config = config.deep_symbolize if @options[:symbolize]
         config
       end
 
