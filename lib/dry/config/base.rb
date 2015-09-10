@@ -106,6 +106,7 @@ module Dry
 
         raise "Failed to load #{filename}" if config.nil?
         config.deep_symbolize if @options[:symbolize]
+        config
       end
 
       def write_yaml_file(filename)
