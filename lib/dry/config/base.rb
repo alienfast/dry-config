@@ -18,7 +18,7 @@ module Dry
       attr_reader :filenames
 
       def initialize(options = {})
-        @options = {interpolation: true}.merge options
+        @options = {interpolation: true, symbolize: true}.merge options
 
         seed_default_configuration
 
@@ -105,7 +105,7 @@ module Dry
         config = Psych.load(contents, filename)
 
         raise "Failed to load #{filename}" if config.nil?
-        config.deep_symbolize
+        config.deep_symbolize if @options[:symbolize]
       end
 
       def write_yaml_file(filename)
