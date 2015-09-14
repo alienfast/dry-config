@@ -18,17 +18,20 @@ module Dry
       attr_reader :filenames
 
       def initialize(options = {})
-        @options = {interpolation: true, symbolize: true}.merge options
+        @options = {
+            interpolation: true,
+            symbolize: true,
+            default_configuration: {},
+            potential_environments: [:development, :test, :staging, :production]
+        }.merge options
 
-        seed_default_configuration
+        @default_configuration = @options[:default_configuration]
 
         # used for pruning initial base set.  See #load!
-        @potential_environments = [:development, :test, :staging, :production]
-      end
+        @potential_environments = @options[:potential_environments]
 
-      def seed_default_configuration
-        # override and seed the sensible defaults here
-        @configuration = {}
+        # setup a default configuration
+        clear
       end
 
       # This is the main point of entry - we call #load! and provide
@@ -41,9 +44,7 @@ module Dry
         raise 'Unspecified filename' if filenames.nil?
 
         # ensure symbol
-        if environment
-          environment = environment.to_sym unless environment.is_a? Symbol
-        end
+        environment = environment.to_sym unless environment.nil?
 
         # save these in case we #reload
         @environment = environment
@@ -121,7 +122,9 @@ module Dry
       end
 
       def clear
-        seed_default_configuration
+        # clone a copy of the default
+        @configuration = {}.merge @default_configuration
+        @configuration.deep_symbolize if @options[:symbolize]
       end
 
       def method_missing(name, *args, &block)

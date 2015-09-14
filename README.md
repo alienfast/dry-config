@@ -43,17 +43,19 @@ class AcmeConfig < Dry::Config::Base
     # (optional) make this the only instance 
     include Singleton
     
-    # seed the sensible defaults here
-    def seed_default_configuration
-      
-      @configuration = {
-          environment: nil,
-          strategy: :blue_green,
-          package: {
-              verbose: false
-          },
-          options: {}
-      }
+    def initialize(options = {})
+      options = {
+          # seed the sensible defaults here (overridable)
+          default_configuration: {
+              environment: nil,
+              strategy: :blue_green,
+              package: {
+                  verbose: false
+              },
+              options: {}
+          }}.merge(options)
+
+      super(options)
     end
 end
 ```
