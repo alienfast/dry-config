@@ -58,7 +58,7 @@ module Dry
 
         filenames.each do |filename|
           # merge all top level settings with the defaults set in the #init
-          deep_merge!(@configuration, resolve_config(environment, filename))
+          @configuration.deeper_merge! resolve_config(environment, filename)
         end
       end
 
@@ -82,7 +82,7 @@ module Dry
           environment_settings = environment_settings[environment.to_sym]
 
           # finally overlay what was provided the settings from the specific environment
-          deep_merge!(config, environment_settings)
+          config.deeper_merge! environment_settings
         end
 
         config
@@ -178,25 +178,6 @@ module Dry
 
       def interpolate?
         @options[:interpolation]
-      end
-
-      private
-
-      def deep_merge!(target, overrides)
-
-        raise 'target cannot be nil' if target.nil?
-        raise 'overrides cannot be nil' if overrides.nil?
-
-        merger = proc { |key, v1, v2|
-          if (Hash === v1 && Hash === v2)
-            v1.merge(v2, &merger)
-          elsif (Array === v1 && Array === v2)
-            v1.concat(v2)
-          else
-            v2
-          end
-        }
-        target.merge! overrides, &merger
       end
     end
   end
