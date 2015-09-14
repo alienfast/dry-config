@@ -4,8 +4,6 @@ require 'singleton'
 describe Dry::Config::Base do
 
   class AcmeConfig < Dry::Config::Base
-    include Singleton
-
     def initialize(options = {})
       options = {
           # seed the sensible defaults here (overridable)
@@ -22,19 +20,24 @@ describe Dry::Config::Base do
     end
   end
 
-  subject(:acmeConfig) { AcmeConfig.instance }
+  class SingletonAcmeConfig < AcmeConfig
+    include Singleton
+  end
+
+  subject(:acmeConfig) { AcmeConfig.new }
+  before(:each) {
+    acmeConfig.clear
+  }
 
   it 'should work as a singleton' do
-    expect(acmeConfig).to equal(AcmeConfig.instance)
+    expect(SingletonAcmeConfig.instance).to equal(SingletonAcmeConfig.instance)
   end
 
   it 'should not raise error when key is not found' do
-    acmeConfig.clear
     expect(acmeConfig.app).to be_nil
   end
 
   it 'should provide seed configuration' do
-    acmeConfig.clear
     assert_common_seed_settings
     expect(acmeConfig.options.length).to eql 0
 
@@ -45,13 +48,12 @@ describe Dry::Config::Base do
 
   context 'hash delegation' do
     it 'manupulated delegated methods setter/getter/include?' do
-      acmeConfig.clear
       acmeConfig.load!(nil, config_file_path)
       expect(acmeConfig.symbolize?).to be_truthy
 
       acmeConfig['foo'] = 'bar'
-      expect(acmeConfig.configuration['foo']).to be_nil # no symbolization on direct access
-      expect(acmeConfig['foo']).to eq 'bar' # symbolization based on options
+      expect(acmeConfig.configuration['foo']).to be_nil # no symbolization manipulation to key on direct access to underlying hash
+      expect(acmeConfig['foo']).to eq 'bar' # symbolization manipulation of key based on options
 
       expect(acmeConfig.configuration[:foo]).to eq 'bar' # setter symbolizes, this works
       expect(acmeConfig[:foo]).to eq 'bar'
@@ -61,7 +63,7 @@ describe Dry::Config::Base do
     end
 
     it 'direct delegation' do
-      acmeConfig.clear
+      
       acmeConfig.load!(nil, config_file_path)
       expect(acmeConfig.symbolize?).to be_truthy
 
@@ -76,10 +78,41 @@ describe Dry::Config::Base do
     end
   end
 
+  context 'unsymbolize_to_yaml' do
+    it 'defaults to unsymbolized' do
+      acmeConfig.load!(nil, config_file_path)
+      expect(acmeConfig.symbolize?).to be_truthy
+      expect(acmeConfig.unsymbolize_to_yaml?).to be_truthy
+
+      yaml = acmeConfig.to_yaml
+      # puts yaml
+      expect(yaml =~ /\:app\:/).to be_falsey
+      expect(yaml =~ /app\:/).to be_truthy
+
+      expect(yaml =~ /\:strategy\:/).to be_falsey
+      expect(yaml =~ /strategy\:/).to be_truthy
+    end
+
+    context 'symbolize: false' do
+      subject(:acmeConfig) { AcmeConfig.new(unsymbolize_to_yaml:false) }
+
+      it 'should leave keys symbolized' do
+        acmeConfig.load!(nil, config_file_path)
+        expect(acmeConfig.symbolize?).to be_truthy
+        expect(acmeConfig.unsymbolize_to_yaml?).to be_falsey
+
+        yaml = acmeConfig.to_yaml
+        # puts yaml
+        expect(yaml =~ /\:app\:/).to be_truthy
+        expect(yaml =~ /\:strategy\:/).to be_truthy
+      end
+    end
+  end
+
   context 'when loading a single configuration file' do
 
     it 'should read file with nil environment' do
-      acmeConfig.clear
+      
       acmeConfig.load!(nil, config_file_path)
 
       assert_common_seed_settings
@@ -94,7 +127,7 @@ describe Dry::Config::Base do
     end
 
     it 'should override with development environment' do
-      acmeConfig.clear
+      
       acmeConfig.load!(:development, config_file_path)
 
       # assert_common_seed_settings
@@ -111,7 +144,7 @@ describe Dry::Config::Base do
     end
 
     it 'should override with production environment' do
-      acmeConfig.clear
+      
       acmeConfig.load!(:production, config_file_path)
 
       # assert_common_seed_settings

@@ -23,15 +23,17 @@ module Dry
 
       def initialize(options = {})
         @options = {
-            interpolation: true,
-            symbolize: true,
-            default_configuration: {},
-            potential_environments: [:development, :test, :staging, :production]
+            env: ENV,                  # default to ENV for interpolation
+            interpolation: true,       # interpolate string contents on read with given ENV
+            symbolize: true,           # provide symbol based key access for everything
+            unsymbolize_to_yaml: true, # on to_yaml or write_yaml_file unsymbolize keys
+            default_configuration: {}, # seed configuration
+            potential_environments: [:development, :test, :staging, :production] # used for pruning (optional)
         }.merge options
 
         @default_configuration = @options[:default_configuration]
 
-        # used for pruning initial base set.  See #load!
+        # (optional) used for pruning initial base set.  See #resolve_config
         @potential_environments = @options[:potential_environments]
 
         # setup a default configuration
@@ -47,8 +49,8 @@ module Dry
         # raise 'Unspecified environment' if environment.nil?
         raise 'Unspecified filename' if filenames.nil?
 
-        # ensure symbol
-        environment = environment.to_sym unless environment.nil?
+        # ensure symbol if symbolize?
+        environment = environment.to_sym if symbolize? && !environment.nil?
 
         # save these in case we #reload
         @environment = environment
@@ -95,16 +97,17 @@ module Dry
         file = File.open(filename, 'r:bom|utf-8')
         contents = file.read
 
+        env = @options[:env]
         if interpolate?
           # interpolate/substitute/expand ENV variables with the string contents before parsing
           # bash - $VAR
-          contents = contents.gsub(/\$(\w+)/) { ENV[$1] }
+          contents = contents.gsub(/\$(\w+)/) { env[$1] }
           # bash - ${VAR}
-          contents = contents.gsub(/\${(\w+)}/) { ENV[$1] }
-          # bash - ~ is ENV['HOME']
-          contents = contents.gsub(/(~)/) { ENV['HOME'] }
+          contents = contents.gsub(/\${(\w+)}/) { env[$1] }
+          # bash - ~ is env['HOME']
+          contents = contents.gsub(/(~)/) { env['HOME'] }
           # ruby - #{VAR}
-          contents = contents.gsub(/\#{(\w+)}/) { ENV[$1] }
+          contents = contents.gsub(/\#{(\w+)}/) { env[$1] }
         end
         # now parse
         config = Psych.load(contents, filename)
@@ -114,10 +117,19 @@ module Dry
         config
       end
 
+      def to_yaml
+        if unsymbolize_to_yaml?
+          config = @configuration.dup.deep_symbolize(true)
+        else
+          config = @configuration
+        end
+
+        Psych.dump(config)
+      end
 
       def write_yaml_file(filename)
         File.open(filename, 'w') do |file|
-          file.write(Psych.dump(@configuration))
+          file.write(to_yaml)
         end
       end
 
@@ -158,6 +170,10 @@ module Dry
 
       def symbolize?
         @options[:symbolize]
+      end
+
+      def unsymbolize_to_yaml?
+        @options[:unsymbolize_to_yaml]
       end
 
       def interpolate?
