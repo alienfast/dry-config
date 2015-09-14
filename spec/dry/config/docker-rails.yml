@@ -6,14 +6,11 @@ elasticsearch: &elasticsearch
     image: library/elasticsearch:1.7
     ports:
       - "9200:9200"
-  links:
-    - elasticsearch
 
 development:
   docker-compose:
+    <<: *elasticsearch
     web:
-      <<: *elasticsearch
-
       command: >
         bash -c "
         echo 'Bundling gems'
@@ -39,6 +36,8 @@ development:
         && foreman start
         "
 
+      links:
+        - elasticsearch # standard yaml doesn't merge arrays so we have to add this explicitly
 docker-compose:
   web:
     build: .
