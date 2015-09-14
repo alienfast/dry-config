@@ -149,13 +149,10 @@ The default configuration is provided below, override any of these values on con
     symbolize: true,           # provide symbol based key access for everything i.e. access :development instead of 'development' as a rule
     unsymbolize_to_yaml: true, # on to_yaml or write_yaml_file unsymbolize keys (several external tools do not do well with symbolized keys i.e. write `development:` instead of `:development:`
     default_configuration: {}, # seed configuration (file contents overlay this)
-    potential_environments: 
-        [:development, :test, :staging, :production] # used for pruning (optional)
+    prune: 
+        [:development, :test, :staging, :production] # used for pruning final configuration (optional - nice to have cleanup)
 }
 ```
-- Expected environments are `[:development, :test, :staging, :production]`.  Expand or redefine `@potential_environments` these by overriding the `#initialize` or doing so in your optional `#seed_default_configuration`.  This is used in the used in the overlay pruning process to prevent unused branches of configuration from showing up in the resolved configuration.
-- An optional `#seed_default_configuration` allows you to provide a configuration base    
-- `#clear` will restore to the seed configuration, allowing you to `#load!` new settings.
 
 ## Contributing
 

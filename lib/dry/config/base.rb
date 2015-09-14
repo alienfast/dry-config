@@ -28,13 +28,13 @@ module Dry
             symbolize: true,           # provide symbol based key access for everything
             unsymbolize_to_yaml: true, # on to_yaml or write_yaml_file unsymbolize keys
             default_configuration: {}, # seed configuration
-            potential_environments: [:development, :test, :staging, :production] # used for pruning (optional)
+            prune: [:development, :test, :staging, :production] # used for pruning (optional)
         }.merge options
 
         @default_configuration = @options[:default_configuration]
 
         # (optional) used for pruning initial base set.  See #resolve_config
-        @potential_environments = @options[:potential_environments]
+        @prune = @options[:prune]
 
         # setup a default configuration
         clear
@@ -69,7 +69,7 @@ module Dry
         should_overlay_environment = environment && config[environment]
 
         # Prune all known environments so that we end up with the top-level configuration.
-        @potential_environments.each do |env|
+        @prune.each do |env|
           config.delete(env)
         end
 
