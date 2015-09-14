@@ -17,6 +17,10 @@ module Dry
       attr_reader :environment
       attr_reader :filenames
 
+      extend Forwardable
+      def_delegators :@configuration, :each_key, :each_value, :each_pair, :each, :keys, :values
+
+
       def initialize(options = {})
         @options = {
             interpolation: true,
@@ -134,16 +138,22 @@ module Dry
             nil
       end
 
-      # configuration hash delegation
+      # configuration hash delegation with option based symbolization
       def [] key
         key = key.to_sym if symbolize?
         @configuration[key]
       end
 
-      # configuration hash delegation
+      # configuration hash delegation with option based symbolization
       def []=(key, value)
         key = key.to_sym if symbolize?
         @configuration[key] = value
+      end
+
+      # configuration hash delegation with option based symbolization
+      def include?(key)
+        key = key.to_sym if symbolize?
+        @configuration.include? key
       end
 
       def symbolize?

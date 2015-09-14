@@ -43,18 +43,37 @@ describe Dry::Config::Base do
     expect(acmeConfig.production).to be_nil
   end
 
+  context 'hash delegation' do
+    it 'manupulated delegated methods setter/getter/include?' do
+      acmeConfig.clear
+      acmeConfig.load!(nil, config_file_path)
+      expect(acmeConfig.symbolize?).to be_truthy
 
-  it 'hash delegation to setter/getter' do
-    acmeConfig.clear
-    acmeConfig.load!(nil, config_file_path)
-    expect(acmeConfig.symbolize?).to be_truthy
+      acmeConfig['foo'] = 'bar'
+      expect(acmeConfig.configuration['foo']).to be_nil # no symbolization on direct access
+      expect(acmeConfig['foo']).to eq 'bar' # symbolization based on options
 
-    acmeConfig['foo'] = 'bar'
-    expect(acmeConfig.configuration['foo']).to be_nil # no symbolization on direct access
-    expect(acmeConfig['foo']).to eq 'bar' # symbolization based on options
+      expect(acmeConfig.configuration[:foo]).to eq 'bar' # setter symbolizes, this works
+      expect(acmeConfig[:foo]).to eq 'bar'
 
-    expect(acmeConfig.configuration[:foo]).to eq 'bar' # setter symbolizes, this works
-    expect(acmeConfig[:foo]).to eq 'bar'
+      expect(acmeConfig.include? 'foo').to be_truthy
+      expect(acmeConfig.include? :foo).to be_truthy
+    end
+
+    it 'direct delegation' do
+      acmeConfig.clear
+      acmeConfig.load!(nil, config_file_path)
+      expect(acmeConfig.symbolize?).to be_truthy
+
+      expect(acmeConfig.respond_to? :each_key).to be_truthy
+      expect(acmeConfig.respond_to? :each_value).to be_truthy
+      expect(acmeConfig.respond_to? :each_pair).to be_truthy
+      expect(acmeConfig.respond_to? :each).to be_truthy
+      expect(acmeConfig.respond_to? :keys).to be_truthy
+      expect(acmeConfig.respond_to? :values).to be_truthy
+
+      # acmeConfig.each_key { |key| puts key }
+    end
   end
 
   context 'when loading a single configuration file' do
