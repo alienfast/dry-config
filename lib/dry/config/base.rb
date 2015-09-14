@@ -91,7 +91,7 @@ module Dry
         file = File.open(filename, 'r:bom|utf-8')
         contents = file.read
 
-        if @options[:interpolation]
+        if interpolate?
           # interpolate/substitute/expand ENV variables with the string contents before parsing
           # bash - $VAR
           contents = contents.gsub(/\$(\w+)/) { ENV[$1] }
@@ -106,9 +106,10 @@ module Dry
         config = Psych.load(contents, filename)
 
         raise "Failed to load #{filename}" if config.nil?
-        config = config.deep_symbolize if @options[:symbolize]
+        config = config.deep_symbolize if symbolize?
         config
       end
+
 
       def write_yaml_file(filename)
         File.open(filename, 'w') do |file|
@@ -124,13 +125,33 @@ module Dry
       def clear
         # clone a copy of the default
         @configuration = {}.merge @default_configuration
-        @configuration.deep_symbolize if @options[:symbolize]
+        @configuration.deep_symbolize if symbolize?
       end
 
       def method_missing(name, *args, &block)
         @configuration[name.to_sym] ||
             #fail(NoMethodError, "Unknown settings root \'#{name}\'", caller)
             nil
+      end
+
+      # configuration hash delegation
+      def [] key
+        key = key.to_sym if symbolize?
+        @configuration[key]
+      end
+
+      # configuration hash delegation
+      def []=(key, value)
+        key = key.to_sym if symbolize?
+        @configuration[key] = value
+      end
+
+      def symbolize?
+        @options[:symbolize]
+      end
+
+      def interpolate?
+        @options[:interpolation]
       end
 
       private

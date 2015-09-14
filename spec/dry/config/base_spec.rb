@@ -43,6 +43,20 @@ describe Dry::Config::Base do
     expect(acmeConfig.production).to be_nil
   end
 
+
+  it 'hash delegation to setter/getter' do
+    acmeConfig.clear
+    acmeConfig.load!(nil, config_file_path)
+    expect(acmeConfig.symbolize?).to be_truthy
+
+    acmeConfig['foo'] = 'bar'
+    expect(acmeConfig.configuration['foo']).to be_nil # no symbolization on direct access
+    expect(acmeConfig['foo']).to eq 'bar' # symbolization based on options
+
+    expect(acmeConfig.configuration[:foo]).to eq 'bar' # setter symbolizes, this works
+    expect(acmeConfig[:foo]).to eq 'bar'
+  end
+
   context 'when loading a single configuration file' do
 
     it 'should read file with nil environment' do
