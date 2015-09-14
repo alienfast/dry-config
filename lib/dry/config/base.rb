@@ -117,9 +117,9 @@ module Dry
         config
       end
 
-      def to_yaml
+      def to_yaml(config = @configuration)
         if unsymbolize_to_yaml?
-          config = @configuration.dup.deep_symbolize(true)
+          config = config.dup.deep_symbolize(true)
         else
           config = @configuration
         end
@@ -127,9 +127,9 @@ module Dry
         Psych.dump(config)
       end
 
-      def write_yaml_file(filename)
+      def write_yaml_file(filename, config = @configuration)
         File.open(filename, 'w') do |file|
-          file.write(to_yaml)
+          file.write(to_yaml(config))
         end
       end
 

@@ -63,7 +63,7 @@ describe Dry::Config::Base do
     end
 
     it 'direct delegation' do
-      
+
       acmeConfig.load!(nil, config_file_path)
       expect(acmeConfig.symbolize?).to be_truthy
 
@@ -76,6 +76,16 @@ describe Dry::Config::Base do
 
       # acmeConfig.each_key { |key| puts key }
     end
+  end
+
+  it 'to_yaml sub context' do
+    acmeConfig.load!(nil, config_file_path)
+    expect(acmeConfig.symbolize?).to be_truthy
+    expect(acmeConfig.unsymbolize_to_yaml?).to be_truthy
+
+    yaml = acmeConfig.to_yaml(acmeConfig[:options])
+    # puts yaml
+    expect(yaml =~ /^---\naws\:elasticbeanstalk\:application\:environment\:$/).to be_truthy
   end
 
   context 'unsymbolize_to_yaml' do
@@ -94,7 +104,7 @@ describe Dry::Config::Base do
     end
 
     context 'symbolize: false' do
-      subject(:acmeConfig) { AcmeConfig.new(unsymbolize_to_yaml:false) }
+      subject(:acmeConfig) { AcmeConfig.new(unsymbolize_to_yaml: false) }
 
       it 'should leave keys symbolized' do
         acmeConfig.load!(nil, config_file_path)
@@ -112,7 +122,7 @@ describe Dry::Config::Base do
   context 'when loading a single configuration file' do
 
     it 'should read file with nil environment' do
-      
+
       acmeConfig.load!(nil, config_file_path)
 
       assert_common_seed_settings
@@ -127,7 +137,7 @@ describe Dry::Config::Base do
     end
 
     it 'should override with development environment' do
-      
+
       acmeConfig.load!(:development, config_file_path)
 
       # assert_common_seed_settings
@@ -144,7 +154,7 @@ describe Dry::Config::Base do
     end
 
     it 'should override with production environment' do
-      
+
       acmeConfig.load!(:production, config_file_path)
 
       # assert_common_seed_settings
