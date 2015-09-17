@@ -1,6 +1,6 @@
 # dry-config
-[![Gem Version](https://badge.fury.io/rb/elastic-beanstalk.svg)](https://rubygems.org/gems/dry-config)
-[![Build Status](https://travis-ci.org/alienfast/elastic-beanstalk.svg)](https://travis-ci.org/alienfast/dry-config)
+[![Gem Version](https://badge.fury.io/rb/dry-config.svg)](https://rubygems.org/gems/dry-config)
+[![Build Status](https://travis-ci.org/alienfast/dry-config.svg)](https://travis-ci.org/alienfast/dry-config)
 [![Code Climate](https://codeclimate.com/github/alienfast/dry-config/badges/gpa.svg)](https://codeclimate.com/github/alienfast/dry-config)
 
 
