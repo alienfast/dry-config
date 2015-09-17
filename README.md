@@ -1,7 +1,8 @@
 # dry-config
 [![Gem Version](https://badge.fury.io/rb/elastic-beanstalk.svg)](https://rubygems.org/gems/dry-config)
 [![Build Status](https://travis-ci.org/alienfast/elastic-beanstalk.svg)](https://travis-ci.org/alienfast/dry-config)
-[![Code Climate](https://codeclimate.com/github/alienfast-elastic-beanstalk/badges/gpa.svg)](https://codeclimate.com/github/alienfast/dry-config)
+[![Code Climate](https://codeclimate.com/github/alienfast/elastic-beanstalk/badges/gpa.svg)](https://codeclimate.com/github/alienfast/dry-config)
+
 
 
 Simple base class for DRY inheritable configurations that can be loaded from multiple overriding yml files.
