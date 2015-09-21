@@ -40,11 +40,29 @@ module Dry
         clear
       end
 
-      # This is the main point of entry - we call #load! and provide
-      # a name of the file to read as it's argument. We can also pass in some
+      # Load the configuration and save state.
+      #
+      # We call #load! and provide a name of the file to read as it's argument. We can also pass in some
       # options, but at the moment it's being used to allow per-environment
       # overrides in Rails
       def load!(environment, *filenames)
+
+        # save these in case we #reload
+        @environment = environment
+        @filenames = filenames
+
+        # load the configuration
+        @configuration = load_unpruned(environment, *filenames)
+
+        # Prune all known environments so that we end up with the top-level configuration.
+        @prune.each do |env|
+          @configuration.delete(env)
+        end
+      end
+
+      # Load the configuration without saving state.  Useful for validation of complex configuration resolution without
+      #   altering the existing state.
+      def load_unpruned(environment, *filenames)
 
         # raise 'Unspecified environment' if environment.nil?
         raise 'Unspecified filename' if filenames.nil?
@@ -52,26 +70,21 @@ module Dry
         # ensure symbol if symbolize?
         environment = environment.to_sym if symbolize? && !environment.nil?
 
-        # save these in case we #reload
-        @environment = environment
-        @filenames = filenames
+        # get a clone of the current configuration
+        config = {}.merge @configuration
 
         filenames.each do |filename|
           # merge all top level settings with the defaults set in the #init
-          @configuration.deeper_merge! resolve_config(environment, filename)
+          config.deeper_merge! resolve_config(environment, filename)
         end
+
+        config
       end
 
       def resolve_config(environment, filename)
-
         config = load_yaml_file(filename)
 
         should_overlay_environment = environment && config[environment]
-
-        # Prune all known environments so that we end up with the top-level configuration.
-        @prune.each do |env|
-          config.delete(env)
-        end
 
         # overlay the specific environment if provided
         if should_overlay_environment
